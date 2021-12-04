@@ -1,13 +1,17 @@
 # Computer_Organization_And_Architecture
 
-  * ## [緒論](#001) #
-    * ## [概論](#0011) #
+* ## [緒論](#001) #
+  * ## [概論](#0011) #
     
     
   <h1 id="001">緒論</h1> 
   
 * <h2 id="0011">概論</h2>  
 
+    * 計算機組織(computer organization):
+      * 物理相關面向，探討控制訊號、訊號傳遞方式與記憶體型態等議題。
+    * 計算機結構(computer architecture):
+      * 邏輯抽象層面，注重計算機的架構與行為，內容包含指令集與格式、運作碼、數據型態暫存器數量與型態、定址模式、主記憶體存取方法與各種I/O機制等元素。 
     * ### 計算機主要元件:  
       1.  cpu   
       2.  memory  
@@ -36,7 +40,7 @@
       |2| 機器 | 指令集(ISA) |
       |1| 控制 | microcode、hardwired |
       |0| 數位邏輯 | 電路、閘(Gate) |
-    * ### 雲服務:
+    * ### 雲服務:  
       * 基礎架構即服務[(IaaS)](https://azure.microsoft.com/zh-tw/overview/what-is-iaas/#overview): 包含level 0、1、2:  
           適用於 "當公司業務主要用於軟體研發時" 的情境
           EX: Amazon EC2, Google Compute Engine, Minecrosoft Azure Service Platform, HP Cloud
@@ -48,6 +52,11 @@
           供應商提供可以透過網際網路提供整個應用而不需再使用者組件，消費者不需要維護或關心任何基本架構的事。
           EX: Gmail, Dropbox, Netflix
 
+    * ### 馮紐曼(von Neumann):  
+      * [見wiki](https://zh.wikipedia.org/wiki/%E5%86%AF%C2%B7%E8%AF%BA%E4%BC%8A%E6%9B%BC%E7%BB%93%E6%9E%84)
+      * [history](https://pansci.asia/archives/194219)
+      * 馮紐曼週期(von Numann execution cycle): [見4.9](#0049)
+    * 
 
 
 
@@ -56,6 +65,13 @@
 
 
 
+
+
+
+
+  <h1 id="004">MARIE</h1> 
+
+* <h2 id="0049">指令的處理</h2>  
 
 
 
