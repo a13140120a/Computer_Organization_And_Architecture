@@ -75,8 +75,9 @@
   * ## [指令的處理](#0049) #
 
 * <h2 id="0048">暫存器與匯流排</h2>
-
-  * **暫存器** : CPU 裡面儲存資料的東西。
+ 
+  * ### 名詞解釋:
+  * **暫存器** : CPU 裡面儲存資料的東西。
   * **ALU**: Arithmetic logic unit (算術邏輯單元)，負責運算的工作。
   * **Control Unit** : 控制單元，負責指揮、控制CPU 運作的單元。
   * **PC** : Program Counter(程式計數器)，暫存器的一種，負責存放要執行的指令的位置。
@@ -84,9 +85,12 @@
   * **MAR** : Memory address register(記憶體位址暫存器)，存放PC 傳過來的位址
   * **MBR(MDR)** : Memory buffer register(Memory data register) 存放從記憶體讀入，或正要寫入記憶體的資料。
   * **AC** : accumulator(累加器)，通用暫存器，存放CPU 要處理的資料 
+  * **Flag register** : 旗標暫存器，負責CPU執行指令後的各種狀態，例如運算結果是否為0、計算中是否產生進位以及結果是否等於負值等等。
+  * **ISA** : (instruction set architecture)指令集架構。
 * <h2 id="0049">指令的處理</h2>  
 
-
+  * [Machine Cycle](https://medium.com/@a131401203/2a7f1446993c)(又稱von Numann execution cycle 或 instruction cycle) : 擷取->解碼->執行 為一個單位
+  * ![alt text](https://img-blog.csdn.net/20180924000054905)
 
 
 
