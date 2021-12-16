@@ -90,7 +90,7 @@
 * <h2 id="0049">指令的處理</h2>  
 
   * [Machine Cycle](https://medium.com/@a131401203/2a7f1446993c)(又稱von Numann execution cycle 或 instruction cycle) : 擷取->解碼->執行 為一個單位
-  * ![alt text](https://img-blog.csdn.net/20180924000054905)
+  * 加上interrupt 之後的cycle![加上interrupt 之後的cycle](https://github.com/a13140120a/Computer_Organization_And_Architecture/blob/main/imgs/20180924000054905.jpg)
 
 
 
