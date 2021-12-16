@@ -70,7 +70,20 @@
 
 
   <h1 id="004">MARIE</h1> 
+  
+  * ## [暫存器與匯流排](#0048) #
+  * ## [指令的處理](#0049) #
 
+* <h2 id="0048">暫存器與匯流排</h2>
+
+  * **暫存器** : CPU 裡面儲存資料的東西。
+  * **ALU**: Arithmetic logic unit (算術邏輯單元)，負責運算的工作。
+  * **Control Unit** : 控制單元，負責指揮、控制CPU 運作的單元。
+  * **PC** : Program Counter(程式計數器)，暫存器的一種，負責存放要執行的指令的位置。
+  * **IR** : Instruction Register(指令暫存器)，存放要被執行的指令
+  * **MAR** : Memory address register(記憶體位址暫存器)，存放PC 傳過來的位址
+  * **MBR(MDR)** : Memory buffer register(Memory data register) 存放從記憶體讀入，或正要寫入記憶體的資料。
+  * **AC** : accumulator(累加器)，通用暫存器，存放CPU 要處理的資料 
 * <h2 id="0049">指令的處理</h2>  
 
 
