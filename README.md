@@ -79,6 +79,12 @@
 
 <h1 id="002">數據表示法</h1> 
 
+* ## [基礎概念](#0021) #
+* ## [有號整數表示法](#0022) #
+* ## [Booth's multiplication algorithm](#0023) #
+* ## [rotation](#0024) #
+* ## [浮點表示法](#0025) #
+* ## [字元符號](#0025) #
 
 
 <h2 id="0021">基礎概念</h2> 
@@ -86,8 +92,7 @@
 * bit(位元): 電腦中最基本的單位，是電路中的開(高電位) 或關(低電位)的狀態
 * byte(位元組): 8個bits
 * word(字組): 表示特定環境下處理起來最有效率的單位，大小不一定是幾個bit，看環境決定。
-* overflow(溢位): 超過指定bit 能夠表示的範圍，例如8個bit的無號整數可表示0-255，當值等於256的時候發生溢位。  
-  又或者想要把長度為4bits 的兩個二進位數相加:1111+1111，這種情況下就會發生溢位。 
+* overflow(溢位): 超過指定bit 能夠表示的範圍，例如4個bit的2's Complement表示法0101(5)與0011(3)相加結果是(-8)為溢位，進位不代表溢位。
 
 <h2 id="0022">有號整數表示法</h2> 
 
@@ -95,15 +100,43 @@
 * 而Signed就是有符號的意思，所以會有分負數與正數，Singed Representation 較常見的又分為以下幾種
   * sign-magnitude representation: 顧名思義就是 符號-大小 的表示法，第一個bit控制正負，其他的bit表示大小。  
     => 最基礎的負數表達方法，電路設計困難，有兩個0的表示法。
-  * 1's Complement: 1轉0，0轉1，溢位要再 + 1。  
+  * 1's Complement: 1轉0，0轉1，進位要再 + 1。  
     => 好處是設計電路簡單，缺點有兩個0的表示法
   * 2's Complement: 1's Complement + 1。  
     => 設計電路簡單，改善有兩個0的表示法問題，缺點是能表示的正負範圍不對稱，ex: 4bit = -8~7
   * Excess: 偏移值2的n-1次方-1為中心點0做計算。
   * [詳細內容](https://medium.com/@a131401203/%E4%B8%AD%E6%96%87%E7%B3%BB%E4%B9%8B%E6%95%B8%E6%93%9A%E8%A1%A8%E7%A4%BA%E6%B3%95-4c833a17c803)
 
+<h2 id="0023">Booth's multiplication algorithm</h2> 
 
+* [wiki](https://zh.wikipedia.org/wiki/%E5%B8%83%E6%96%AF%E4%B9%98%E6%B3%95%E7%AE%97%E6%B3%95)(後續補上)
 
+<h2 id="0024">rotation</h2> 
+
+* 向右移一位為乘2，向左移一位則除2。
+
+<h2 id="0025">浮點表示法</h2> 
+
+*  [浮點表示法](https://medium.com/@a131401203/%E4%B8%AD%E6%96%87%E7%B3%BB%E4%B9%8B%E6%95%B8%E6%93%9A%E8%A1%A8%E7%A4%BA%E6%B3%95%E7%AC%AC%E4%BA%8C%E9%9B%86%E4%B9%8B%E6%B5%AE%E9%BB%9E%E8%A1%A8%E7%A4%BA%E6%B3%95-2a414e50cf28)
+
+<h2 id="0026">字元符號</h2> 
+
+ * [BCD](https://zh.wikipedia.org/wiki/%E4%BA%8C%E9%80%B2%E7%A2%BC%E5%8D%81%E9%80%B2%E6%95%B8) (uncompressed or zoned): 未壓縮的BCD碼，以八位元為一個單位表達一個十進位數字，  
+   ex:十進位-1265轉換成BCD=> 00000001 00100110 01011101 非常浪費空間。
+ * BCD(compressed or packed): 壓縮的BCD碼，四個位元為一單位，1100代表+ 、1101代表-、1111代表無號數字，將正負號放在最後面，  
+   ex: 十進位+146 轉換成 packed BCD => 00010100 01101100  
+ * [EBCDIC](https://zh.wikipedia.org/wiki/EBCDIC): 像未壓縮的BCD碼，只不過每個Byte 的4個高位元補1，正負號置於最低位元組的4個高位元  
+   ex: +146 => 11110001 11110100 11000110  
+ * [ASCII](https://zh.wikipedia.org/wiki/ASCII): 像未壓縮的BCD碼，只不過每個Byte 的4個高位元補0011，正負號置於最低位元組的4個高位元  
+   ex: +146 => 00110001 00110100 11000110  
+ * [Unicode](https://zh.wikipedia.org/wiki/Unicode): 可向下與ASCII兼容，以16位元編碼，因ASCII 不足以容納各國語言而產生
+ * [UTF-8](https://zh.wikipedia.org/wiki/UTF-8): 針對Unicode的可變長度字元編碼，由於較小值的編碼點一般使用頻率較高，直接使用Unicode編碼效率低下，大量浪費記憶體空間，UTF-8就是為了解決向下相 容ASCII碼而設計，Unicode中前128個字元，使用與ASCII碼相同的二進位值相同的位元組進行編碼。
+
+<h2 id="0027">data compression</h2> 
+
+* pending
+
+<h2 id="0028">Error </h2> 
 
 <h1 id="003">布林代數與數位邏輯</h1> 
 
