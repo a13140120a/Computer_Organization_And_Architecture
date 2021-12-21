@@ -136,8 +136,16 @@
 
 * pending
 
-<h2 id="0028">Error </h2> 
+<h2 id="0028">Error detecting and Error correcting</h2> 
 
+* Error detecting Code
+  * Parity bit: 利用多加一個bit 的方式判定資料是否有錯誤，只能發現一個位元錯誤，並且無法知道錯誤的位置，也無法復原錯誤。  
+    以奇核對位元來說，如果給定一組資料位中1的個數是奇數，補一個bit為0，使得總的1的個數是奇數。例：0000001, 補一個bit為0, 00000010。    
+    以偶核對位元來說，如果一組給定資料位中1的個數是奇數，補一個bit為1，使得總的1的個數是偶數。例：0000001, 補一個bit為1, 00000011。  
+  * [checksum](https://medium.com/@a131401203/%E4%B8%AD%E6%96%87%E7%B3%BB%E4%B9%8Bchecksum-808b10b901e1) (之後再補上PCC奇偶校驗)
+* Error Correcting Code: 簡稱[ECC](https://zh.wikipedia.org/wiki/%E7%BA%A0%E9%94%99%E5%86%85%E5%AD%98)，通常使用於Memory
+  * Hamming distance: 兩組位元組之間有幾個bit不相同，例如10001001 與10110001 有三個地方不一樣，因此Hamming distance為3。
+  * Hamming code: 
 <h1 id="003">布林代數與數位邏輯</h1> 
 
 
