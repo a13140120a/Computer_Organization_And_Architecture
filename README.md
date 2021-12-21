@@ -84,7 +84,9 @@
 * ## [Booth's multiplication algorithm](#0023) #
 * ## [rotation](#0024) #
 * ## [浮點表示法](#0025) #
-* ## [字元符號](#0025) #
+* ## [字元符號](#0026) #
+* ## [data compression](#0027) #
+* ## [Error detecting and Error correcting](#0028) #
 
 
 <h2 id="0021">基礎概念</h2> 
