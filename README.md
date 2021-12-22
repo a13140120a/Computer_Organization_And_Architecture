@@ -199,7 +199,7 @@
 * [多工器](https://zh.wikipedia.org/wiki/%E6%95%B0%E6%8D%AE%E9%80%89%E6%8B%A9%E5%99%A8):輸入的部分會有一組控制線來控制，任何時候只有被選到的輸入可以輸出。
 * [產生器/核對器](http://content.saihs.edu.tw/chapter_htm/chapter5/5c/c_06.htm):一個產生parity bit 一個把全部xor 做檢查
 
-<h2 id="0033">序向邏輯電路</h2> 
+<h2 id="0034">序向邏輯電路</h2> 
 
 * 時脈(clock): 
   * 非同步:輸入時及時變動
@@ -210,17 +210,35 @@
 
 * 正反器(flip-flop):
   * 可以儲存狀態
-  * SR正反器: [超詳細解說](https://www.youtube.com/watch?v=KM0DdEaY5sY&list=LL&index=1)
-  * ![加上interrupt 之後的cycle](/imgs/20180924000054905.jpg)
+  * SR正反器: 可儲存一個位元，[超詳細解說](https://www.youtube.com/watch?v=KM0DdEaY5sY&list=LL&index=1)
+  * ![SR](/imgs/SR.png)
     | S  R | Q(t+1)表下一狀態 |
     | --- | --- |
     | 0  0 | Q(t)(狀態不變) |
     | 0  1 | 0(reset) |
     | 1  0 | 1(set) |
     | 1  1 | 未定義(看誰先到) |
-  * D 正反器
+  * JK 正反器: 與SR基本上相同，唯一不同處是當輸入均為1時，反轉目前狀態，適合製作Program Counter(PC暫存器)。
+  * | J  K | Q(t+1)表下一狀態 |
+    | --- | --- |
+    | 0  0 | Q(t)(狀態不變) |
+    | 0  1 | 0(reset) |
+    | 1  0 | 1(set) |
+    | 1  1 | 反轉(1變0，0變1) |
+  * ![JK](/imgs/JK.png)
+  * D 正反器: 最能代表真實的計算機元件(通常是暫存器)，輸入為1且有時脈發生時輸出為1，輸入為0且有時脈發生時輸出為0。
+  * | D | Q(t+1)表下一狀態 |
+    | --- | --- |
+    | 0 | 0 |
+    | 1 | 1 |
+    
+<h2 id="0035">有限狀態機</h2> 
 
-  <h1 id="004">MARIE</h1> 
+* Pending
+
+
+
+<h1 id="004">MARIE</h1> 
   
   * ## [暫存器與匯流排](#0048) #
   * ## [指令的處理](#0049) #
