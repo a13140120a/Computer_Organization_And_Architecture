@@ -260,8 +260,8 @@
 
 <h2 id="0041">CPU</h2>
 
-* 暫存器，CPU內部速度非常快的儲存體，D正反器可以製作暫存器，一個D正反器相當於一個位元的暫存器
-  * **PC** : Program Counter(程式計數器)，暫存器的一種，負責存放要執行的指令的位置。
+* 暫存器，CPU內部速度非常快的儲存體，D正反器可以製作暫存器，一個D正反器相當於一個位元的暫存器，某些特定的暫存器只能用來做下述用途，不能用作其他用途。
+  * **PC** : Program Counter(程式計數器)，暫存器的一種，負責存放要執行的指令的位置。
   * **IR** : Instruction Register(指令暫存器)，存放要被執行的指令
   * **MAR** : Memory address register(記憶體位址暫存器)，存放PC 傳過來的位址
   * **MBR(MDR)** : Memory buffer register(Memory data register) 存放從記憶體讀入，或正要寫入記憶體的資料。
@@ -312,35 +312,44 @@
 <h2 id="0043">ISA(instruction set architecture)指令集架構</h2>
 
 * MARIE的instruction 長度均為16 bit，且前四個位元為**opcode**(運作碼)，其他的12個位元為記憶體位址(代表支援2^12個記憶體位置)
+* 分為直接定址(direct address) 與間接定址(indirect address):
+  * direct address: x欄位中的值為真正地址
+  * indirect address: x 欄位中的值指向另一個記憶體位置
 * 一個把記憶體位置000000000011 Load 進AC暫存器的指令如下:
 * ![一個把記憶體位置000000000011 Load 進AC暫存器的指令](/imgs/opcode2.png)
   | 二進位 | 指令 | 意義 |
   | --- | --- | --- |
   | 0001 | Load x | 將記憶體位址x的內容載入AC |
   | 0010 | Store x | 將AC的內容儲存至記憶體位址x |
-  | 0011 | Add x | 將位址X內容加至AC中並將結果儲存於AC |
-  | 0100 | Sub x | 將AC內容減去位址X內容並將結果儲存於AC |
+  | 0011 | Add x | 將位址X內容加至AC中，並將結果儲存於AC |
+  | 0100 | Sub x | 將AC內容減去位址X內容，並將結果儲存於AC |
   | 0101 | Input x | 將IO裝置的值儲存於AC中 |
   | 0110 | Output x | 將AC的內容輸出於IO裝置 |
   | 0111 | Halt | 結束程式 |
   | 1000 | Skipcond | 根據條件跳過下一道指令 |
   | 1001 | Jump x | 將x的值載入PC |
+  | 0000 | JnS X | 將PC的值儲存於X，並跳至X+1 |
+  | 1010 | Clear | AC全部設為0 |
+  | 1011 | AddI X | 記憶體位置X的內容為另一個記憶體位置Y，將記憶體位址Y的內容與AC相加 |
+  | 1100 | JumpI X | 記憶體位置X的內容為另一個記憶體位置Y，將Y的值載入PC |
+  | 1101 | LoadI X | 記憶體位置X的內容為另一個記憶體位置Y，將記憶體位址Y的內容載入AC |
+  | 1110 | StoreI X | 記憶體位置X的內容為另一個記憶體位置Y，將AC的內容儲存至記憶體位址Y |
 
 * microoperation(微運作): 每道instruction 都是由數個microoperation所構成的，例如Load 時，需先將memory address 載入MAR，Fetch 之後將資料儲存於MBR，再將MBR的內容載入AC
 * RTN(register transfer notation): 暫存器傳遞表示法，又稱RTL(register transfer language)，M[x]表示儲存於記憶體位置x中的數據，<- 表示資訊的傳遞。
-* 以上指令詳解(實際上的microoperation其實會受到匯流排設計的影響而有所不同):
+* 指令詳解(實際上的microoperation其實會受到匯流排設計的影響而有所不同):
   * Load X: 將記憶體位址X 置於MAR，然後將M[MAR] 處(或位址X)的資料複製入MBR，然後將資料儲存於AC中:
   ```
   MAR <- X
   MBR <- M[MAR]
   AC <- MBR
   ```
-  *  Store X: 將AC的內容儲存至記憶體位址X
+  *  Store X:
   ```
   MAR <- X, MBR <- AC  (因為書中兩個暫存器間有匯流排連結，所以可以僅用一個時脈就完成)
   M[MAR] <- MBR
   ```
-  *  Add X: 將位址X內容加至AC中並將結果儲存於AC
+  *  Add X:
   ```
   MAR <- X
   MBR <- M[MAR]
@@ -371,12 +380,75 @@
       If AC > 0 then PC <- PC+1 (若AC大於0則略過下一道指令)
   若兩個位元均為1，則發生錯誤。
   ```
-  *  Jump X: 無條件跳轉
+  *  Jump X: 無條件跳轉到X的位置
   ```
   PC <- X
   也可寫成:
   PC <- IR[11~0]
   ```
+  * JnS: 
+  ```
+  # 將PC的值存到記憶體位置X
+  MBR<-PC
+  MAR<-X
+  M[MAR]<-MBR
+  跳轉到X+1
+  MBR<-X
+  AC<-1
+  AC<-AC+MBR
+  PC<-AC
+  ```
+  * Clear:
+  ```
+  AC<-0
+  ```
+  * AddI X:
+  ```
+  # 取記憶體位置X的值
+  MAR<-X
+  MBR<-M[MAR]
+  #以記憶體位置X的值當成另一個記憶體位置然後取值
+  MAR<-MBR
+  MBR<-M[MAR]
+  # 相加
+  AC<-AC+MBR
+  ```
+  * JumpI X:
+  ```
+  # 取X的值
+  MAR<-X
+  MBR<-M[MAR]
+  # Jump到X的值的位置
+  PC<-MBR
+  ```
+  LoadI X:
+  ```
+  # 取記憶體位置X的值
+  MAR<-X
+  MBR<-M[MAR]
+  #以記憶體位置X的值當成另一個記憶體位置然後取值
+  MAR<-MBR
+  MBR<-M[MAR]
+  # 將結果存於AC
+  AC<-MBR
+  ```
+  StoreI X:
+  ```
+  # 取記憶體位置X的值
+  MAR<-X
+  MBR<-M[MAR]
+  # 只有MAR能Fetch, 所以放進MAR
+  MAR<-MBR
+  # 儲存資料
+  MBR<-AC
+  M[MAR]<-MBR
+  ```
+  
+  
+* <h2 id="0044">指令的處理</h2>  
+  * [Machine Cycle](https://medium.com/@a131401203/2a7f1446993c)(又稱von Numann execution cycle 或 instruction cycle) : 擷取->解碼->執行 為一個單位
+  * 加上interrupt 之後的cycle![加上interrupt 之後的cycle](/imgs/20180924000054905.jpg)
+  * (Interrupt:pending)[123]  
   
 * 以下為MARIE一簡易程式:
   | 16進位位址 | 指令 | 記憶體中內容(二進制) | 記憶體中內容(16進制) |
@@ -389,8 +461,8 @@
   | 105 | FFE9 | 1111111111101001 | FFE9 |
   | 106 | 0000 | 0000000000000000 | 0000 |
   
-  * 其各暫存器的值與對應的RTN:
-  * 
+* 其各暫存器的值與對應的RTN:
+
   Load 104:   
   | 步驟 | RTN | PC | IR | MAR | MBR | AC |
   | --- | --- | --- | --- | --- | --- | --- |
@@ -423,21 +495,47 @@
   | 解碼 | MAR<-IR[11~0] | 103 | 2106 | 106 | FFE9 | 000C |  |
   | 執行 | MBR<-AC | 102 | 2106 | 106 | 000C | 000C |
   |  | M[MAR]<-MBR | 103 | 2106 | 106 | 000C | 000C |
-  
-<h2 id="0044">組譯器</h2>
+
+
+<h2 id="0045">組譯器</h2>
   
 * 組譯器的工作是將組合語言(助憶碼)轉換成機器碼(machine code)。
 * 組譯器讀入來源檔(source file)並產出目的檔(object file)。
 * 可用label(標籤) 來當成記憶體位置，以利組合語言撰寫，缺點是會加重組譯器工作。
 * 組譯器至少必須要從頭到尾掃描兩次程式碼，第一次建立symbol table(符號表)來連結label與記憶體位置，第二次轉譯時，組譯器就可根據符號表取得對應的machine code。
-* 
+* 以迴圈將5個數字相加的簡易編程:
+  ```
+  十六進位地址    label       指令
+  100                        Load     Addr
+  101                        Store    Next
+  102                        Load     Num
+  103                        Sub      One
+  104                        Store    Ctr
+  105            Loop,       Load     Sum
+  106                        AddI     Next
+  107                        Store    Sum
+  108                        Load     Next
+  109                        Add      one
+  10A                        Store    Next
+  10B                        Load     Ctr
+  10C                        Sub      One
+  10D                        Store    Ctr
+  10E                        Skipcond 000
+  10F                        Jump     Loop
+  110                        Halt
+  111            Addr,       Hex      117
+  112            Next,       Hex      0
+  113            Num,        Dec      5
+  114            Sum,        Dec      0
+  115            Ctr,        Hex      0
+  116            One,        Dec      1
+  117                        Dec      10
+  118                        Dec      15
+  119                        Dec      20
+  11A                        Dec      25
+  11B                        Dec      30
+  ```
 
-  
-* <h2 id="0049">指令的處理</h2>  
-
-  * [Machine Cycle](https://medium.com/@a131401203/2a7f1446993c)(又稱von Numann execution cycle 或 instruction cycle) : 擷取->解碼->執行 為一個單位
-  * 加上interrupt 之後的cycle![加上interrupt 之後的cycle](/imgs/20180924000054905.jpg)
-  * (Interrupt:pending)[123]
 
 
 
