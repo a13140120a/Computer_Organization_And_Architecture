@@ -506,36 +506,37 @@
 * 以迴圈將5個數字相加的簡易編程:
   ```
   十六進位地址    label       指令
-  100                        Load     Addr
-  101                        Store    Next
-  102                        Load     Num
-  103                        Sub      One
-  104                        Store    Ctr
-  105            Loop,       Load     Sum
-  106                        AddI     Next
-  107                        Store    Sum
-  108                        Load     Next
-  109                        Add      one
-  10A                        Store    Next
-  10B                        Load     Ctr
-  10C                        Sub      One
-  10D                        Store    Ctr
-  10E                        Skipcond 000
-  10F                        Jump     Loop
-  110                        Halt
-  111            Addr,       Hex      117
-  112            Next,       Hex      0
-  113            Num,        Dec      5
-  114            Sum,        Dec      0
-  115            Ctr,        Hex      0
-  116            One,        Dec      1
-  117                        Dec      10
+  100                        Load     Addr  / 將117 load到AC中
+  101                        Store    Next  / 將117 store到Next中
+  102                        Load     Num   / 將5 load到AC中
+  103                        Sub      One   / AC的值減1，此時AC值為4
+  104                        Store    Ctr   / 將 4 store到Ctr，此時Ctr為4
+  105            Loop,       Load     Sum   / 將總和 load到AC中
+  106                        AddI     Next  / 以Next的值(117,118....)為記憶體位置，與AC相加
+  107                        Store    Sum   / 然後存回去
+  108                        Load     Next  / 把下一個指標load近來
+  109                        Add      one   / 指向下一個位置
+  10A                        Store    Next  / 存回去
+  10B                        Load     Ctr   / 把目前迴圈數i load到AC中
+  10C                        Sub      One   / 減1
+  10D                        Store    Ctr   / 存回去
+  10E                        Skipcond 000   / 判斷是否為0，若是則跳過下一行結束，
+  10F                        Jump     Loop  / 若否，則回到Loop
+  110                        Halt           / 結束
+  111            Addr,       Hex      117   / 第一個數字的記憶體位置
+  112            Next,       Hex      0     / 下一個數字的指標
+  113            Num,        Dec      5     / 迴圈總數
+  114            Sum,        Dec      0     / 存放和的地方
+  115            Ctr,        Hex      0     / 控制迴圈的i
+  116            One,        Dec      1     / 用於遞增或遞減
+  117                        Dec      10    / 從這裡開始以下為要被加總的五個數字
   118                        Dec      15
   119                        Dec      20
   11A                        Dec      25
   11B                        Dec      30
   ```
 
+<h2 id="0046">解碼</h2>
 
 
 
