@@ -142,8 +142,8 @@
 
 * Error detecting Code
   * Parity bit: 利用多加一個bit 的然後把全部的bit XOR起來的方式判定資料是否有錯誤，只能發現一個位元錯誤，並且無法知道錯誤的位置，也無法復原錯誤。  
-    以奇核對位元來說: 如果給定一組資料位中1的個數是奇數，補一個bit為0，使得總的1的個數是奇數。例：0000001, 補一個bit為0, 00000010。    
-    以偶核對位元來說: 如果一組給定資料位中1的個數是奇數，補一個bit為1，使得總的1的個數是偶數。例：0000001, 補一個bit為1, 00000011。  
+    **以奇核對位元來說** : 如果給定一組資料位中1的個數是奇數，補一個bit為0，使得總的1的個數是奇數。例：0000001, 補一個bit為0, 00000010。    
+    **以偶核對位元來說** : 如果一組給定資料位中1的個數是奇數，補一個bit為1，使得總的1的個數是偶數。例：0000001, 補一個bit為1, 00000011。  
   * [checksum](https://medium.com/@a131401203/%E4%B8%AD%E6%96%87%E7%B3%BB%E4%B9%8Bchecksum-808b10b901e1) (之後再補上PCC奇偶校驗)
 * Error Correcting Code: 簡稱[ECC](https://zh.wikipedia.org/wiki/%E7%BA%A0%E9%94%99%E5%86%85%E5%AD%98)，通常使用於Memory
   * Hamming distance: 兩組位元組之間有幾個bit不相同，例如10001001 與10110001 有三個地方不一樣，因此Hamming distance為3。
@@ -236,26 +236,96 @@
 
 * Pending
 
+<h1 id="004">簡易計算機架構(MARIE)</h1> 
 
+參考書籍: https://www.amazon.com/Essentials-Computer-Organization-Architecture/dp/1449600069
 
-<h1 id="004">MARIE</h1> 
-  
-  * ## [暫存器與匯流排](#0048) #
-  * ## [指令的處理](#0049) #
+* MARIE, a Machine Architecture that is Really Intuitive and Easy，書中描述MARIE 是一簡易計算機架構，可讓人輕易的了解計算機大致上的運作方式及結構，其包含以下結構:
+  * 16-bit的資料字組
+  * 16-bit的指令 4 位元的 opcode 和 12 位元的位址
+  * 16-bit算術邏輯單元 (ALU)
+  * 16-bit的累加器(AC)
+  * 16-bit的IR
+  * 16-bit的MBR
+  * 12-bit的PC
+  * 12-bit的MAR
+  * 8-bit的輸入暫存器(InREG)
+  * 8-bit的輸出暫存器(OutREG)
 
-<h2 id="0048">暫存器與匯流排</h2>
- 
-  * ### 名詞解釋:
-  * **暫存器** : CPU 裡面儲存資料的東西。
-  * **ALU**: Arithmetic logic unit (算術邏輯單元)，負責運算的工作。
-  * **Control Unit** : 控制單元，負責指揮、控制CPU 運作的單元。
+* ## [CPU](#0041) #
+* ## [匯流排(bus)](#0041) #
+* ## [暫存器與匯流排](#0048) #
+* ## [指令的處理](#0049) #
+
+<h2 id="0041">CPU</h2>
+
+* 暫存器，CPU內部速度非常快的儲存體，D正反器可以製作暫存器，一個D正反器相當於一個位元的暫存器
   * **PC** : Program Counter(程式計數器)，暫存器的一種，負責存放要執行的指令的位置。
   * **IR** : Instruction Register(指令暫存器)，存放要被執行的指令
   * **MAR** : Memory address register(記憶體位址暫存器)，存放PC 傳過來的位址
   * **MBR(MDR)** : Memory buffer register(Memory data register) 存放從記憶體讀入，或正要寫入記憶體的資料。
   * **AC** : accumulator(累加器)，通用暫存器，存放CPU 要處理的資料 
   * **Flag register** : 旗標暫存器，負責CPU執行指令後的各種狀態，例如運算結果是否為0、計算中是否產生進位以及結果是否等於負值等等。
-  * **ISA** : (instruction set architecture)指令集架構。
+  * **InREG** : 輸入暫存器，存放由設備傳來的數據
+  * **OutREG** : 輸出暫存器，存放要輸出給設備的數據
+
+* **ALU**: Arithmetic logic unit (算術邏輯單元)，CPU內負責運算工作的單位。
+* **Control Unit** : 控制單元，負責指揮、控制CPU 運作的單元。
+
+
+<h2 id="0042">匯流排(bus)</h2>
+
+* 匯流排週期: CPU通過匯流排和存儲器或I/O接口進行一次數據傳輸所需要的時間
+* 用來連結系統中多個子系統共用且通用的數據傳輸通道的一組導線。
+* 含有多條線，可以多個位元同時傳輸。
+* 任何時刻僅有一個裝置可以使用匯流排
+* 速度受其長度及共用他的裝置的數量影響
+* 常被區分為**主動(master)** 與 **被動(slave)** ，主動式發起動作者，被動是回應動作者。
+* 可以是點**對點(point to point)**，或者是 **共用的(common pathway)(又稱為multipoint)**
+* 一組匯流排又可以包含:
+  * 數據線(data bus 又稱數據匯流排): 用來傳輸資料。
+  * 控制線(control lines): 控制哪個裝置被允許使用，以及目的為何，也必須要用來回覆使用的請求(request)、打斷(interrupt)、以及時脈傳送過來的訊號。
+  * 位址線: 資料應被讀出或寫入的位址。
+  * 電源線: 顧名思義。
+* 匯流排依據傳送不同類型的資訊又可分為以下:
+  * processor-memory buses(處理器-記憶體匯流排): 短而高速，力求盡可能地提高頻寬。
+  * I/O busses(IO 匯流排): 較processor-memory buses 長，可配合各種不同頻寬的設備。
+  * backplane buses(背板匯流排)，做在機器底板上來連接處理器、IO、及Memory，許多電腦會有階層式匯流排，高效能系統通常會使用所有的三種匯流排。
+* PC上的匯流排亦有屬於自己的專用術語:
+  * system bus(系統匯流排): 連結cpu、memory 以及其他所有內部組件。
+  * expansion buses(延伸匯流排): 連接外部裝置、周邊設備、擴充槽與部分的IO Port，速度較慢。
+  * local buses(區域匯流排): 是那些連接周邊裝置到cpu 的匯流排，只能用於連接數量有限的類似裝置，速度非常快。
+* 匯流排又可分為同步與非同步:
+  * 同步匯流排: 只有在時脈變動時發生，會因為匯流排長度而導致時脈偏斜(clock skew)，匯流排週期不可以短於資訊在匯流排上傳遞所需的時間，因此匯流排的長度會對匯流排的時脈速率以及匯流排時間造成限制。
+  * 非同步匯流排: 控制訊號協調，並且需要使用handshaking protocal(握手協定)來保持時序，以下是從記憶體讀出資料的流程:
+    1. ReqREAD: 這條控制線被致動，資料的記憶體被放到匯流排線上
+    2. ReadyDATA: 這條控制線在記憶體系統已經把所需要的資料放上匯流排時被設定
+    3. ACK: 這條控制線是對方用於表示已經收到 ReqREAD或ReadyDATA。
+* 匯流排使用時必須先預約，在多於一個主動裝置的系統中需要做bus arbitration(匯流排仲裁)，方法可分以下四大類:
+  * Daisy Chain Topology（菊花鏈拓撲）: 使用一條從最高優先權裝置像最低優先權裝置傳遞下去的「同意授予匯流排」控制線，此方法不具公平性，最低優先權有可能餓死。
+  * centralized parallel arbitration: 美個裝置在匯流排中會有一條請求控制線，會有一個集中式的仲裁器選擇誰可以使用匯流排，此方法可能會有瓶頸。
+  * distributed arbitration using self-selection: 這方法與centralized parallel arbitration 類似，但是並非由集中式的仲裁器選擇誰可以使用匯流排，而是各自投票決定誰有最高優先權。
+  * distributed arbitration using collision detection: 每個裝置都可以發出請求，若發生碰撞則重新送出請求。
+
+
+<h2 id="0043">ISA(instruction set architecture)指令集架構</h2>
+
+* MARIE的instruction 長度均為16 bit，且前四個位元為**opcode**(運作碼)，其他的12個位元為記憶體位址(代表支援2^12個記憶體位置)
+* 一個把記憶體位置000000000011 Load 進AC暫存器的指令如下:
+* ![一個把記憶體位置000000000011 Load 進AC暫存器的指令](/imgs/opcode.png)
+  | 二進位 | 指令 | 意義 |
+  | --- | --- | --- |
+  | 0001 | Load x | 將記憶體位址x的內容載入AC |
+  | 0010 | Store x | 將AC的內容儲存至記憶體位址x |
+  | 0011 | Add x | 將位址X內容加至AC中並將結果儲存於AC |
+  | 0100 | Sub x | 將AC內容減去位址X內容並將結果儲存於AC |
+  | 0101 | Input x | 將IO裝置的值儲存於AC中 |
+  | 0110 | Output x | 將AC的內容輸出於IO裝置 |
+  | 0111 | Halt | 結束程式 |
+  | 1000 | Skipcond | 根據條件跳過下一道指令 |
+  | 1001 | Jump x | 將x的值載入PC |
+
+
 * <h2 id="0049">指令的處理</h2>  
 
   * [Machine Cycle](https://medium.com/@a131401203/2a7f1446993c)(又稱von Numann execution cycle 或 instruction cycle) : 擷取->解碼->執行 為一個單位
