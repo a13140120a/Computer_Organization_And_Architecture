@@ -4,6 +4,7 @@
 * ## [數據表示法](#002) #
 * ## [布林代數與數位邏輯](#003) #
 * ## [MARIE](#004) #
+* ## [MIPS](#005) #
   
 ****
 <h1 id="001">基礎概念</h1> 
@@ -315,8 +316,8 @@
 * 分為直接定址(direct address) 與間接定址(indirect address):
   * direct address: x欄位中的值為真正地址
   * indirect address: x 欄位中的值指向另一個記憶體位置
-* 一個把記憶體位置000000000011 Load 進AC暫存器的指令如下:
-* ![一個把記憶體位置000000000011 Load 進AC暫存器的指令](/imgs/opcode2.png)
+* 一個把記憶體位置0000 0000 0011 Load 進AC暫存器的指令如下:
+* ![一個把記憶體位置0000 0000 0011 Load 進AC暫存器的指令](/imgs/opcode2.png)
   | 二進位 | 指令 | 意義 |
   | --- | --- | --- |
   | 0001 | Load x | 將記憶體位址x的內容載入AC |
@@ -334,6 +335,10 @@
   | 1100 | JumpI X | 記憶體位置X的內容為另一個記憶體位置Y，將Y的值載入PC |
   | 1101 | LoadI X | 記憶體位置X的內容為另一個記憶體位置Y，將記憶體位址Y的內容載入AC |
   | 1110 | StoreI X | 記憶體位置X的內容為另一個記憶體位置Y，將AC的內容儲存至記憶體位址Y |
+
+* 指令集又分CISC(複雜指令集)及RISC(精簡指令集):
+  * CISC: 有很多指令，長度不固定，格式複雜，缺點是某些較複雜的指令會大量拖累速度。Intel 的x86系列都是CISC。
+  * RISC: 主要目的為簡化指令，使其速度更快，每到指令只執行一個動作，指令長度都一樣，格式簡單。Pentium跟MIPS 都是RISC
 
 * microoperation(微運作): 每道instruction 都是由數個microoperation所構成的，例如Load 時，需先將memory address 載入MAR，Fetch 之後將資料儲存於MBR，再將MBR的內容載入AC
 * RTN(register transfer notation): 暫存器傳遞表示法，又稱RTL(register transfer language)，M[x]表示儲存於記憶體位置x中的數據，<- 表示資訊的傳遞。
@@ -538,11 +543,218 @@
 
 <h2 id="0046">解碼</h2>
 
-* 解碼其實就是利用許多邏輯閘來控制資料流向
+* 解碼其實就是利用許多邏輯閘來控制資料流向，通常一個microoperation會對應到一組控制訊號
 * 又分為**硬連線控制** 與**微程式控制**
-  * 硬連線控制:較快，但是體積較大，而且無法設計太複雜的指令集，具備三個元件:指令解碼器、週期計數器、控制矩陣
-  * 微程式控制:較慢，但較靈活，且可以設計許多複雜的指令集
+  * 硬連線控制:將IR中的指令透過基本的邏輯閘轉換為控制訊號   
+      速度較快，但是體積較大，而且無法設計太複雜的指令集，硬連線控制具備三個元件:指令解碼器、週期計數器、控制矩陣
+  * 微程式控制:使用microcode產生控制訊號，將IR裡面的指令輸入到 microprogram(通常是燒在ROM、PROM、EEPROM裡面的解譯器)裡面，然後產生控制訊號
+      速度較慢，但較靈活，修改指令集只需修改microprogram即可，不用修改電路，且可以設計許多複雜的指令集，目前於個人電腦上位居主流。
 
 
+<h2 id="0047">Intel</h2>
 
+* 8086 的四個重要的16位元暫存器，分別為AX(accumulator)、BX(擴充定址能力)、CX(計數器)、DX(數據暫存器)，每個暫存器依據高位元處與低位元處又可分為AH、BH、CH、DH、AL、BL、CL、DL，其他還有用於表示stack 位移量的指標SP、stack 基底指標(BP)、還有Prpgram Counter(IP)、
+* 8086 的組合語言分成不同的segments，code segment存放程式碼，data segment 存放數據，還有stack segment存放stack，要從任何segment存取資料都必須指定從segment的開頭到位移處，因此就有了存放segment 的暫存器，CS存放code segment，DS存放data segment，SS存放stack segment，還有額外區段的SS暫存器，位址使用xxx:yyy的形式定義，其中xxx為區段暫存器中的值，yyy為偏移量。
+* 80386出現時，為了向下相容，對原本的16位元暫存器擴增成32位元，將AX、BX、CX、DX又增加了EAX(Extend AX)、EBX、ECX、EDX，並保留原本的暫存器。
+* 指令集採用[little endian](#0052)，裡個位址，並且是[GPR 裡面的register-memory](#0053) 架構。
+
+
+<h2 id="005">Instructionse</h2>
+
+<h2 id="0051">格式</h2>
+
+* 可依下列特性作為區分:
+  * 運算元的儲存方式:以stack的方式 或者暫存器中
+  * 運算元數量
+  * 運算元的位置:記憶體或者暫存器
+  * 運作:例如那些可以存取記憶體，哪些不行
+  * 運算元的型態:是地址，還是數字
+
+* 設計Instructionse時需以下列因素做為考量:
+  * 程式可使用的空間
+  * 指令集的複雜度
+  * 指令的長度
+  * 指令的總數
+
+* 短指令通常占用較少空間，且速度較快，缺點是可用數量少、運算元數量也較少。
+* 固定長度的指令解碼較快，但較浪費空間
+* 記憶體的組織與指令有很大的關聯，例如若記憶體使用16或32個bit而不已byte定址的話，則難以存取單一字元符號。
+* 固定長度的指令集並不一定要固定數量的運算元。
+* 存在許多種定址模式
+* 位元組存放順序:大小端
+
+<h2 id="0052">big endian/little endian</h2>
+
+* [big endian](https://zh.wikipedia.org/wiki/%E5%AD%97%E8%8A%82%E5%BA%8F#%E5%A4%A7%E7%AB%AF%E5%BA%8F): 閱讀較為容易，可以立刻從位移值0來判斷正負，於串列上運作時速度較快，大部分圖片檔都是以big endian方式擺放，缺點是將32位元轉換成16位元時較麻煩，不允許以非word的方式儲存(例如word是2個bytes 時不能從第1個byte 的位置放起)，編程較不易。
+* [little endian](https://zh.wikipedia.org/wiki/%E5%AD%97%E8%8A%82%E5%BA%8F#%E5%B0%8F%E7%AB%AF%E5%BA%8F): 計算高精確度算數時較容易，允許非word的方式儲存，編程容易，計算機網路通常採用little endian方式。
+
+<h2 id="0053">種類</h2>
+
+* stack architectures:EX
+  ```
+  Push X
+  Pop  Y
+  Mult
+  Add
+  ```
+* accumulator architecture(只有一個暫存器):EX
+  ```
+  Add X
+  ```
+* general-purpose register(GPR):又可分成三種
+  * memory-memory: 允許不使用暫存器的情況下運作
+  * register-memory: 至少要包含一個暫存器
+  * load-store: 只能有暫存器，所有牽涉到記憶體的數據都必須先載入暫存器
+
+<h2 id="0054">Expanding opcode</h2>
+
+* Expanding opcode 代表的是一套豐富的opcode，但又希望opcode能夠很短的折衷作法，利用escape opcode來達成
+* 例如育編碼以下所有指令:
+  * 15道具有三個位址的指令
+  * 14道具有兩個位址的指令
+  * 31道具有一個位址的指令
+  * 16道具有0個位址的指令
+```
+# 15道具有三個位址的指令
+0000 R1 R2 R3
+....
+1110 R1 R2 R3
+1111  # escape opcode
+
+# 14道具有兩個位址的指令
+1111 0000 R1 R2
+...
+1111 1110 # escape opcode
+
+# 31道具有一個位址的指令
+1111 1110 0000 R1
+...
+1111 1111 1111 # escape opcode
+```
+* 當前四個位元為1111時，代表此道指令有兩個或一個位址
+* 當前八個位元為1111 1110時，代表此道指令有一個位址
+* 當前面12個位元為1111 1111 1111時，代表此opcode 沒有位址
+
+* 如果要用12個位元設計指令集，3個位元用來表示暫存器，且不允許直接存取記憶體，並且想創造出:
+  * 4道具有三個位址的指令
+  * 255道具有一個位址的指令
+  * 16道具有0個位址的指令
+  * 前四道指令需4 * 2^3 * 2^3 * 2^3 = 2048種bit pattern，接著255道指令需255 * 2^3 = 2040，加上最後16道指令總共4104種，然而12位元只能有4096種bit pattern，所以無法達成目標。
+
+<h2 id="0055">定址</h2>
+
+* immediate addressing: 例如Load 008，cpu 會直接把008載入AC中
+* direct addressing: 例如Load 008，cpu 會把記憶體位址008的值載入AC中
+* indirect addressing: 例如Load 008，cpu 會直接把記憶體位址008的值當成address y，然後去y找資料
+* register addressing: 會將暫存器中的值載入
+* register indirect addressing: 會將暫存器中的值當成位址，然後載入位址的資料。
+
+
+<h2 id="005">MIPS</h2>
+  
+<h2 id="0051">介紹</h2>
+  
+* 參考資料: [清大黃婷婷教授](https://youtube.com/playlist?list=PLS0SUwlYe8czszh6M74JCU0mIUL_ymBbe)  
+* ISA 屬於RISC，Load-Store architecture，只能以暫存器作為運算元，
+* MIPS32 裡面因為memory 的地址太大無法塞進instruction 所以address 都存在register 裡面
+* 分為三種型態:
+  * R-format: for register:
+    * 6bit opcode,5bit source register, 5bit target register(注意跟組語不同), 5bit destination register, 5bit shift amount, 6bit function
+    * opcode 用來表示哪種type, fumction 用來表示例如add, sub等等
+    * shift amount 為5個bit 剛好可以shift 32個bit，再多就無意義了，有些指令例如add 此field為0。
+  
+  * i-format: for immediate、lw and sw
+    * 6bit opcode,5bit source register, 5bit target register, 16bit immediate
+    * immediate 會被extend 成32bit 的有號數(負的會全補1，正的會全補1)，若是lw或sw，則此field會是offset的值
+  * J-foramt: for jump: 分成 condotional 跟 unconditional
+    * condotional 有beq(branch equal), bnq(branch not equal)
+    * unconditional 則是 j(jump)
+* 暫存器種類:
+  * 0:zero constant，因為運算很常用到0，包括mov的動作或者not，所以就直接有了一個0暫存器增加速度
+  * v0: results  (return value)
+  * v1: expression (return value)
+  * a0~a3: arguments
+  * t0~t7: temporary, caller saves
+  * s0~s7: callee saves (local variable)
+  * t8~t9: more temporary saves
+  * k0、k1: for os kernel
+  * gp: pointer to global area
+  * sp: stack pointer
+  * fp: frame pointer
+  * ra: return address (跳轉前儲存現在的位址的暫存器)
+
+
+<h2 id="0052">基本語法</h2>
+
+* 把記憶體位置1012的值載入暫存器t0:
+```
+$s0=1000
+lw $t0, 12($s0)  # load word
+```
+* store t0(=25) 到記憶體位置1012
+```
+$s0=1000
+$t0=25
+sw $t0, 12($s0)  # store word
+```
+* C code : `g = h+ A[8]`，其中$s1=g, $s2=h, $s3=A的base address
+```
+lw $t0, 32($s3)  # 因為一個word 為4個byte
+add $s1, $s2, $t0
+```
+* 常數指令:
+```
+#s1+10放到s0裡面
+addi $s0, $s1, 10
+```
+* 第0個register always=0
+```
+# 不會有任何事發生
+add $zero, $zero, 10
+```
+* MIPS 沒有mov所以用add zero暫存器:
+```
+#s0 mov 到 t0
+add $t0, $s0, $zero
+```
+* sll:shift left(補零), srl: shift right(補零),sra: shift right but fill empty by singed(負補1，正補0)   
+* and: 將bit pattern 做and
+```
+and $t0, $t1, $t2
+```  
+* MIPS 沒有NOT，使用NOR(A NOR B=NOT(A OR B) )，所以先NOR 0就等於NOT
+```
+nor $t0, $t1, $zero
+# t1 = 00011
+# t0 = 11100
+```
+* bne and j:
+```
+# in C:
+if (i==j) f=g+h;
+else f=g-h;
+
+# in MIPS
+        bne $s3, $s4, Else  # i!=j則跳到Else，等於則下一行
+        add $s0, $s1, $s2
+        j Exit              # jump 到Exit
+Else:   sub $s0, $s1, $s2
+Exit:
+```
+* Signed:
+  * slt rd, rs, rt : if (rs<rt) rd=1;else rd=0 # 設定旗標
+  * slti rt, rs, constant : if (rs < constant) rt=1;else rt=0
+  ```
+  slt $t1, $s0, $s1
+  bne $t0, $zero, Less
+  ```
+* Unsigned: sltu, sltui:
+
+<h2 id="0053">Procedure Call</h2>
+  
+
+  
+  
+  
+  
 
