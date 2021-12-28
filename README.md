@@ -674,8 +674,8 @@
   * v0: results  (return value)
   * v1: expression (return value)
   * a0~a3: arguments
-  * t0~t7: temporary, caller saves
-  * s0~s7: callee saves (local variable)
+  * t0~t7: temporary, caller saves (存放可以被隨意更換的值)
+  * s0~s7: callee saves (local variable, 存放希望不要被破壞的值)
   * t8~t9: more temporary saves
   * k0、k1: for os kernel
   * gp: pointer to global area
@@ -751,8 +751,63 @@ Exit:
 * Unsigned: sltu, sltui:
 
 <h2 id="0053">Procedure Call</h2>
-  
 
+* jal x: jump and link: jump 到x 然後把next address 存到$ra:
+```
+add $a0, $0, $s0  # 搬到argument裡面
+add $a1, $0, $s1
+add $a2, $0, $s2
+jal function_a
+add $s0, $0, $v0 # return 的東西放在v0
+```
+```
+function_a:
+    addi $sp, $sp, -12   # 調整stack poiner
+    sw $s0, 0($sp)       # 把原本的資料存到memory的stack 裡面 (context switch)
+    sw $t0, 4($sp)       # t暫存器通常不必放在stack 裡面，此僅展示
+    sw $t1, 8($sp)
+    add $t0, $a0, $a1    # 就可以開始使用t跟s暫存器
+    ...
+    add $v0, $t0, $zero  # 放在v0暫存器return
+    lw $s0, 0($sp)       # 用完之後再load 回來
+    lw $t0, 4($sp)       # t暫存器通常不必放在stack 裡面，此僅展示
+    lw $t1, 8($sp)
+    addi $sp, $sp, 12    # 復原 stack poiner
+    jr $ra               # 跳轉回去ra儲存的地址
+  
+#多層function call 的時候要把ra 跟a0 a1...也都一併放進stack 裡面。
+```
+* 遞迴:
+  * C:
+  ```
+  int fact(int n)
+  {
+    if (n<1)
+      return 1;
+    else 
+      return n * fact( n-1);
+  }
+  ```
+  * MIPS:
+  ```
+  function_re:
+            addi $sp, $sp, -8  # 需要store 三個var
+            sw $a0, 4($sp)      # a0 代表父的argument
+            sw $ra, 8($sp)      # 父的跳轉前的addr
+            slti $t0, $a0, 1    # 判斷a0 是否小於1
+            bne $t0, 1, Return  # 小於的話則跳轉
+            addi $a0, $a0, -1
+            jal function_re  # 跳回第一行，覆蓋$ra
+            lw $a0, 4($sp)   
+            lw $ra, 8($sp) 
+            mul $v0, $a0, $v0   # 做乘法，a0=父的值，v0=子的值
+            addi $sp, $sp, 8
+            jr $ra  # 跳轉回去父call 的地方
+      
+  Return:   addi $v0, $zero, 1 #v0設成1
+            addi $sp, $sp, 8  # 關鍵，拋棄最後的a0與ra
+            jr $ra  # 跳轉回去父call 的地方
+  ```
   
   
   
