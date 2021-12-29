@@ -648,7 +648,10 @@
 * indirect addressing: 例如Load 008，cpu 會直接把記憶體位址008的值當成address y，然後去y找資料
 * register addressing: 會將暫存器中的值載入
 * register indirect addressing: 會將暫存器中的值當成位址，然後載入位址的資料。
-
+* based addressing: 將暫存器中的值加上instrction 的值來定址
+* stack addressing: 顧名思義。
+* PC-relative(self-relative) addressing: 與目前指令位置加減instrction 的值來定址。
+* pseudo-address: 因為不夠長，所以做了一些小撇步來描述地址，不是百分百準確。
 
 <h2 id="005">MIPS</h2>
   
@@ -657,6 +660,7 @@
 * 參考資料: [清大黃婷婷教授](https://youtube.com/playlist?list=PLS0SUwlYe8czszh6M74JCU0mIUL_ymBbe)  
 * ISA 屬於RISC，Load-Store architecture，只能以暫存器作為運算元，
 * MIPS32 裡面因為memory 的地址太大無法塞進instruction 所以address 都存在register 裡面
+* ARM 與 MIPS 很相近，都屬於RISC
 * 分為三種型態:
   * R-format: for register:
     * 6bit opcode,5bit source register, 5bit target register(注意跟組語不同), 5bit destination register, 5bit shift amount, 6bit function
@@ -666,9 +670,9 @@
   * i-format: for immediate、lw and sw
     * 6bit opcode,5bit source register, 5bit target register, 16bit immediate
     * immediate 會被extend 成32bit 的有號數(負的會全補1，正的會全補1)，若是lw或sw，則此field會是offset的值
-  * J-foramt: for jump: 分成 condotional 跟 unconditional
     * condotional 有beq(branch equal), bnq(branch not equal)
-    * unconditional 則是 j(jump)
+  * J-foramt: for jump: 
+    * unconditional 則是 j(jump)、jr
 * 暫存器種類:
   * 0:zero constant，因為運算很常用到0，包括mov的動作或者not，所以就直接有了一個0暫存器增加速度
   * v0: results  (return value)
@@ -691,6 +695,11 @@
 $s0=1000
 lw $t0, 12($s0)  # load word
 ```
+* lb(signed)、lbu(unsigned)
+```
+lb $t1, 0($t1) # 若值是F7則$t1=FFFFFFF7
+lbu $t1, 0($t1) # 若值是F7則$t1=000000F7
+```
 * store t0(=25) 到記憶體位置1012
 ```
 $s0=1000
@@ -702,7 +711,7 @@ sw $t0, 12($s0)  # store word
 lw $t0, 32($s3)  # 因為一個word 為4個byte
 add $s1, $s2, $t0
 ```
-* 常數指令:
+* 常數指令addi:
 ```
 #s1+10放到s0裡面
 addi $s0, $s1, 10
@@ -809,7 +818,93 @@ function_a:
             jr $ra  # 跳轉回去父call 的地方
   ```
   
+<h2 id="0053">32-bit immediate and address</h2>
+
+* 32-bit 的constant 表示:
+  * 使用lui, ori:
+  ```
+  original machine pattern 001111 00000 10000 0000 0000 0011 1101      # 後面16bit代表61
+  lui $s0, 61         # 0000 0000 0011 1101 0000 0000 0000 0000 <- $s0   # 把16個bit 搬到32位元暫存器前半段
+  ori $s0, $s0, 2304  # 0000 0000 0011 1101 0000 1001 0000 0000        # 譬如我要把後面放上2304
+  # 以此表達32bit 的 immediate
+  ```
+* 32-bit address表示:
+  * 譬如bne, beq 就把當前PC 的值加或減到要jump 的位置。
+  * access memory 的時是by byte
+  * instruction 是by 4byte(word)，所以immediate 的值自動乘四(加兩個0)，這樣可以allocate四倍的距離(+-2^17)
+  * 因為執行指令之前會先把PC指向下一道指令(+4)，所以bne, beq其實是跳轉到PC+4 + (immediate* 4) 的位置
+  ```
+  Loop:  beq $9, $0, End
+         add $8, $8, 10
+         add $9, $8, 10
+         j Loop
+  End: 
   
-  
-  
+  opcode = 4
+  rs = 9
+  rt = 0
+  immediate = 3
+  ```
+  * jump的opcode有6bit，後面有26bit immediate，乘上四之後可以定位28bit 的instruction 位置，剩下的4個bit 就取PC的前四個bit(代表program分成四塊)，若不同chunk則會出現錯誤。而linker 跟loader 的任務就是避免將jump 跟immediate 的位置擺在不同的chenk，所以jump 到PC[31~28] + immediate + 00。
+  * 位址80020 要跳到80000, immediate=20000 (十進位)
+  * jr $ra 可以精準定位32bit 位置
+  * 如果位置相距太遠，assembler 會重寫code，例如beq 要跳到L1, assembler 會在離L1較近的地方有一個L2 再junp 到L1。
+
+
+
+<h2 id="0053">translation and startup</h2>
+
+* pseudo instruction: 此instruction並不是真的對應到一個machine code，例如blt 是bne 跟slt 的結合，或mov 其實是add 0。
+* 當編譯到執行:
+  * Producing an Object Module:
+    * assembler 把program 轉換成machine code
+    * 並提供以下:
+      * Header: program 內容資訊
+      * Text segment: code 
+      * static data segment: 一開始就alloc 的data
+      * relocation info: 哪些是稍後需要補上的地方。
+      * symbol table: global definition and externel refs。
+      * debug info:
+    * linker(linkin object module):
+      * merge segment
+      * resolve labels
+      * 把 location-dependent and enternel refs 補起來
+      * 會留下一些需要relocate 的東西 讓loader 去做(如果用virtual memory 的話就不會)
+    * loader(loading a program):
+      * read header 來決定 size
+      * create virtual address space
+      * copy text and initialized data intp memory(如果是virtual memory 就要先把page table create 好，然後利用page falt來把東西搬進記憶體)
+      * set up argument on stack
+      * 初始化register
+      * jump 到開頭，開始執行
+
+
+
+<h2 id="0053">Array and pointer</h2>
+
+* array 比較慢(其實視compiler 而定)，例如:
+```
+clear1(int array[], int size)
+{
+    int i;
+    for (i=0;i<size i++)
+      array[i]=0;
+}
+```
+可改成:
+```
+clear2(int array[], int size)
+{
+    int p*;
+    for (p=&array[];p<&array[size] p++)
+      *p=0;
+}
+```
+
+
+
+
+
+
+
 
