@@ -9,15 +9,6 @@
 ****
 <h1 id="001">基礎概念</h1> 
 
-* ## [組織與結構](#0011) #
-* ## [計算機主要元件](#0012) #
-* ## [容量單位](#0013) #
-* ## [摩爾定律](#0014) #
-* ## [計算機階層](#0015) #
-* ## [雲服務](#0016) #
-* ## [von Neumann](#0017) #
-
-
 <h2 id="0011">組織與結構</h2> 
 
 * 計算機組織(computer organization):
@@ -79,16 +70,6 @@
 * von Numann execution cycle(馮紐曼週期): [見4.9](#0049)
 
 <h1 id="002">數據表示法</h1> 
-
-* ## [基礎概念](#0021) #
-* ## [有號整數表示法](#0022) #
-* ## [Booth's multiplication algorithm](#0023) #
-* ## [rotation](#0024) #
-* ## [浮點表示法](#0025) #
-* ## [字元符號](#0026) #
-* ## [data compression](#0027) #
-* ## [Error detecting and Error correcting](#0028) #
-
 
 <h2 id="0021">基礎概念</h2> 
 
@@ -255,9 +236,12 @@
   * 8-bit的輸出暫存器(OutREG)
 
 * ## [CPU](#0041) #
-* ## [匯流排(bus)](#0041) #
-* ## [暫存器與匯流排](#0048) #
-* ## [指令的處理](#0049) #
+* ## [匯流排(bus)](#0042) #
+* ## [ISA(instruction set architecture)指令集架構](#0043) #
+* ## [指令的處理](#0044) #
+* ## [組譯器](#0045) #
+* ## [解碼](#0046) #
+* ## [Intel](#0047) #
 
 <h2 id="0041">CPU</h2>
 
@@ -559,7 +543,7 @@
 * 指令集採用[little endian](#0052)，裡個位址，並且是[GPR 裡面的register-memory](#0053) 架構。
 
 
-<h2 id="005">Instructionse</h2>
+<h2 id="005">Instructions</h2>
 
 <h2 id="0051">格式</h2>
 
@@ -653,9 +637,18 @@
 * PC-relative(self-relative) addressing: 與目前指令位置加減instrction 的值來定址。
 * pseudo-address: 因為不夠長，所以做了一些小撇步來描述地址，不是百分百準確。
 
-<h2 id="005">MIPS</h2>
+<h2 id="006">MIPS</h2>
+
+* ## [介紹](#0061) #
+* ## [基本語法](#0062) #
+* ## [Procedure Call](#0063) #
+* ## [32-bit immediate and address](#0064) #
+* ## [translation and startup](#0065) #
+
+
+
   
-<h2 id="0051">介紹</h2>
+<h2 id="0061">介紹</h2>
   
 * 參考資料: [清大黃婷婷教授](https://youtube.com/playlist?list=PLS0SUwlYe8czszh6M74JCU0mIUL_ymBbe)  
 * ISA 屬於RISC，Load-Store architecture，只能以暫存器作為運算元，
@@ -688,7 +681,7 @@
   * ra: return address (跳轉前儲存現在的位址的暫存器)
 
 
-<h2 id="0052">基本語法</h2>
+<h2 id="0062">基本語法</h2>
 
 * 把記憶體位置1012的值載入暫存器t0:
 ```
@@ -759,7 +752,7 @@ Exit:
   ```
 * Unsigned: sltu, sltui:
 
-<h2 id="0053">Procedure Call</h2>
+<h2 id="0063">Procedure Call</h2>
 
 * jal x: jump and link: jump 到x 然後把next address 存到$ra:
 ```
@@ -818,7 +811,7 @@ function_a:
             jr $ra  # 跳轉回去父call 的地方
   ```
   
-<h2 id="0053">32-bit immediate and address</h2>
+<h2 id="0064">32-bit immediate and address</h2>
 
 * 32-bit 的constant 表示:
   * 使用lui, ori:
@@ -852,7 +845,7 @@ function_a:
 
 
 
-<h2 id="0053">translation and startup</h2>
+<h2 id="0065">translation and startup</h2>
 
 * pseudo instruction: 此instruction並不是真的對應到一個machine code，例如blt 是bne 跟slt 的結合，或mov 其實是add 0。
 * 當編譯到執行:
@@ -878,11 +871,7 @@ function_a:
       * 初始化register
       * jump 到開頭，開始執行
 
-
-
-<h2 id="0053">Array and pointer</h2>
-
-* array 比較慢(其實視compiler 而定)，例如:
+* 以下比較(速度其實視compiler 而定)，例如:
 ```
 clear1(int array[], int size)
 {
@@ -899,6 +888,7 @@ clear2(int array[], int size)
     for (p=&array[];p<&array[size] p++)
       *p=0;
 }
+# 通常較快
 ```
 
 
