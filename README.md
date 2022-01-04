@@ -6,6 +6,7 @@
 * ## [MARIE](#004) #
 * ## [Instructions](#005) #
 * ## [MIPS](#006) #
+* ## [Memory](#007) #
   
 ****
 <h1 id="001">基礎概念</h1> 
@@ -76,7 +77,7 @@
 
 * bit(位元): 電腦中最基本的單位，是電路中的開(高電位) 或關(低電位)的狀態
 * byte(位元組): 8個bits
-* word(字組): 表示特定環境下處理起來最有效率的單位，大小不一定是幾個bit，看環境決定。
+* word(字組): 表示特定環境下處理起來最有效率的單位，大小不一定是幾個bit，看環境決定，一個記憶體位址通常儲存於一個word 之內。
 * overflow(溢位): 超過指定bit 能夠表示的範圍，例如4個bit的2's Complement表示法0101(5)與0011(3)相加結果是(-8)為溢位，進位不代表溢位。
 
 <h2 id="0022">有號整數表示法</h2> 
@@ -891,6 +892,33 @@ clear2(int array[], int size)
 }
 # 通常較快
 ```
+
+<h1 id="007">Memory</h1> 
+
+
+<h2 id="0071">Memory interleaving</h2>
+
+* 記憶體中若包含多個bank，此時個個bank 可以同時存取，以提高速度
+* 若記憶體有8個bank 則稱作 8-way interleaved，編號由0至7
+* Memory interleaving 分成兩種:
+  * low-order interleaved: 以低序位元表示bank，將連續的記憶體位置於不同的bank 中，可以平行存取，速度較快。
+    ![low-order interleaved](/imgs/bank2.png)
+  * high-order interleaved: 以高序位元表示bank，將連續的記憶體位置於相同的bank 中，不能平行存取，但較為直觀。
+    ![high-order interleaved](/imgs/bank1.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
