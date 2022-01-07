@@ -95,7 +95,7 @@
 
 <h2 id="0023">Booth's multiplication algorithm</h2> 
 
-* [wiki](https://zh.wikipedia.org/wiki/%E5%B8%83%E6%96%AF%E4%B9%98%E6%B3%95%E7%AE%97%E6%B3%95)(後續補上)
+* [Booth’s multiplication algorithm](https://medium.com/@a131401203/%E4%B8%AD%E6%96%87%E7%B3%BB%E4%B9%8Bbooths-multiplication-algorithm-e074f8753d)
 
 <h2 id="0024">rotation</h2> 
 
@@ -754,6 +754,14 @@ Exit:
   ```
 * Unsigned: sltu, sltui:
 
+
+* mult
+  ```
+  mult $t1, $t2
+  #其實是分成以下3步驟
+  
+  ```
+
 <h2 id="0063">Procedure Call</h2>
 
 * jal x: jump and link: jump 到x 然後把next address 存到$ra:
@@ -906,12 +914,54 @@ clear2(int array[], int size)
   * high-order interleaved: 以高序位元表示bank，將連續的記憶體位置於相同的bank 中，不能平行存取，但較為直觀。
     ![high-order interleaved](/imgs/bank1.png)
 
+<h2 id="0072">記憶體類型</h2>
+
+* RAM: 隨機存取記憶體，又分DRAM 與SRAM
+  * DRAM:較便宜，速度較慢，需要持續flash。
+  * SRAM: 較貴，速度較快，不用持續flash。
+* ROM: 唯讀記憶體，關閉電源資料也不會消失，用在許多嵌入式系統上
+  * PROM: 可以燒斷保險絲來編程，編程完成之後不可改變
+  * EPROM: 需要特殊的紫外線工具來除去內容。
+  * EEPROM: 不須特殊工具也可以除去內容，快閃記憶體本質上就是EEPROM。
+
+<h2 id="0073">hierarchy</h2>
+
+* 越靠近processer 的叫做higher level, 反之叫做lower level
+* 因為每個階層的記憶體速度不同，容量及價格也不相同，所以使用截長補短的方式
+* 大部分的Program 是90%的時間在運行10%的code。
+* cache hit: 欲存取的資料在較high level 的記憶體當中
+* cache miss: 欲存取的資料不在較high level 的記憶體當中
+* penalty: 處理cache miss 所要消耗的時間(通常很大)
+* temporary locality(時間區域性): 現在被access 之後不久又會馬上被access
+* spatial locality(空間區域性): 連續的記憶體空間常常會連續的access，譬如insyruction 的部分有program, data 的部分則是array。
 
 
+<h2 id="0074">map</h2>
 
+* Direct-Mapped Cache:
+  * 使用modulo 的方式將cache map 到memory 上面
+  * 例如有一cache 64 個block，每個block 大小為16 bytes，因為大小為16bytes 所以offset 用四個bit表達
+  * index 代表第幾個block，有64個，所以用6個bit 表達。
+  * 缺點是不同tag但是重複的block 如果需要一直使用到，會大幅增加penalty。譬如index=1跟index=65重複交叉使用。
+  * tag 代表第幾個循環，剩下的位元皆是tag。
+    ![map](/imgs/map.png)
+  * map 示意圖:
+  * ![map2](/imgs/map2.png)
+* Fully Associative Cache
+  * 使用 Fully Associative Cache 的話，cache 裡面的block 就不用按照順序擺放，解決了Direct-Mapped Cache的重複交叉使用問題。
+  * 必須要有Associative memory 這種昂貴的hardware 才可以辦到，
+  * Associative memory 代表著每個block 均有一比較器，與每個block 的 tag 同時做比較，才能達到O(1)的速度。
+  * 上述Direct-Mapped Cache的例子會變成用四個bit表達offset，其他都是tag。
+* Set-associative cache
+  * 又稱N路集合關聯式快取，把N個block 變成一個集合
+  * 若有64個block 並且採4路集合，那麼只需要4個比較器而非64個，大大降低成本
+  * 主記憶體被畫分成三個部分:
+    ![map3](/imgs/map3.png)
+  * Direct-Mapped Cache是N=block 的情況，而Fully Associative Cache 是N=1的情況
 
+<h2 id="0075">replacement policy</h2>
 
-
+* 
 
 
 
