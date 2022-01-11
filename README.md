@@ -931,14 +931,16 @@ clear2(int array[], int size)
 * 大部分的Program 是90%的時間在運行10%的code。
 * cache hit: 欲存取的資料在較high level 的記憶體當中
 * cache miss: 欲存取的資料不在較high level 的記憶體當中
-* penalty: 處理cache miss 所要消耗的時間(通常很大)
+* penalty: 處理cache miss 所要消耗的時間(通常很大
+* principle locality: 90%的時間在運行10%的code
 * temporary locality(時間區域性): 現在被access 之後不久又會馬上被access
 * spatial locality(空間區域性): 連續的記憶體空間常常會連續的access，譬如insyruction 的部分有program, data 的部分則是array。
 
 
-<h2 id="0074">map</h2>
+<h2 id="0074">cache map</h2>
 
 * Direct-Mapped Cache:
+  * 沒有replacement policy
   * 使用modulo 的方式將cache map 到memory 上面
   * 例如有一cache 64 個block，每個block 大小為16 bytes，因為大小為16bytes 所以offset 用四個bit表達
   * index 代表第幾個block，有64個，所以用6個bit 表達。
@@ -961,18 +963,83 @@ clear2(int array[], int size)
 
 <h2 id="0075">replacement policy</h2>
 
-* 
+* LRU(least recently used): 紀錄每個block 的存取時間，最久沒被使用的會先被替換掉
+* FIFO(First in First out): 先進先出
+* randmo: 顧名思義
 
-<h2 id="0076">Virtual Memory</h2>
+<h2 id="0076">Write policy</h2>
+
+* write throught: 每次寫cache 的時候都會順便寫進memory, 為維持一致性犧牲速度。
+* write back: 當block 要被replace 掉且dirty bit=1的時候才寫回memory
+
+<h2 id="0077">Virtual Memory</h2>
+
+* dirty bit: 紀錄page 是否被修改過(write back 的機制，因為penalty過大，故不可能是write throught)
+* valid bit: 為0代表此page不在實體memory 當中，反之亦然
+* 通常會有一個
+* 為了multi-process 而誕生，每個process 都要share 一個main memory
+* page 是虛擬的，frame 是實體的
+* 每個process 會有自己的page table 紀錄virtual address 對應到的physical address
+* 主要是OS 的工作輔以cpu的hardware
+* 轉換成physical address之後如果要access 的page 不在main memory 的話OS 會觸發page fault。
+* 發生page fult 的流程
+  * 選擇一個要swap 進disk 的page(可能寫入disk，也可能沒寫入)
+  * 把不在memory 的page load 進memory
+  * update page table (修改對應的frame and 把被swap 的page的valit bit 設為0，代表不在memory當中)
+  * 繼續執行program
+* page fault 的處理太過於複雜(maybe million cycle)，無法用hardware完成，因此交由OS完成
+* 因為penalty 非常大，所以map 的方式不會使用direct map，通常會使用fully associative 的方式。
+* Problem:
+  * Page table 太大: hashing 或者是hierarchy, 或者使用bound register, 設置一開始的limit size，然後讓page table 慢慢長大。
+  * 因為page table 放在memory 所以要access 兩次memory，速度變慢。
+* 使用LRU 的policy 的話通常會有一個Reference bit(use bit), 每隔一段時間會把全部的page 的Reference bit設為0，若有使用過的page再設為1
+* TLB(Translation Lookaside Buffer): 
+  * 通常會存在cpu的cache 裡面
+  * 目的是為了加速，因為page table的機制要access兩次memory
+  * 把剛使用過的Entry儲存在TLB裡面，當access的Entry在TLB裡面的時候就可以加速，不用再到memory去找
+  * 因為spatial locality，通常一個entry就可以有很大的效能改善(想像一個page 4KB, 每次access都要查詢page table)
+
+* cache加上TLB加上page table的memory access完整流程圖:
 
 
 
+<h1 id="008">I/O System</h1> 
+
+* IO = Input and Output
+* IO devices 不直接與cpu連接，而是透過interface的方式處理數據
+* 透過interface 可以將訊號轉換成cpu或IO decvices可以處理的形式
+* 一個IO 子系統應該包含以下:
+  * main memory中專門用於各種IO德memory segments
+  * 用來搬移數據的匯流排
+  * 主系統(通常在mother board)中處理各devices 的control module
+  * 各devices 的IO interface
+  * 接線或通訊連結
 
 
+<h2 id="0081">I/O 控制方法</h2> 
 
+* Programmed IO
+  * 又稱polled IO 或port IO
+  * cpu持續監控[poll]IO devices
+  * 好處是可以對每個設備依需求進行控制，可以處理系統中不同數量以及類型的devices, 以及Polling中的順序與週期
+  * 缺點是busy waiting
+* Interrupt-driven IO
+  * 與Programmed IO作法相反，只有在需要傳輸資料時才主動告知cpu
+  * 優先權會被設計成硬體電路，決定好之後就很難更動
+  * 驅動程式會變更 interrupt vector來改寫成指向專為device 廠商所製作的碼
+* memory-mapped IO
+  * 讓IO devices 與memory 共用同樣的記憶體空間
+  * 為了解決當加入新型設備時有可能需要變更電路的問題
+  * 每個IO devices 在memory 中會有自己的保留區塊
+  * DMA(direct memory access) 可以幫助cpu省去繁瑣的IO過程
+* channel-attached IO
+  * DMA 給cpu的好處對於一些大型電腦遠不足夠，因而出現
+  * 有一到多個小型cpu IO處理器用於控制 channel path
+  * 對於慢速設備(印表機，鍵盤滑鼠)的channel path 會合併
 
+<h2 id="0082">RAID</h2> 
 
-
+* https://www.itread01.com/content/1545690255.html
 
 
 
