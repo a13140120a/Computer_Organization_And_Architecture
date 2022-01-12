@@ -7,6 +7,7 @@
 * ## [Instructions](#005) #
 * ## [MIPS](#006) #
 * ## [Memory](#007) #
+* ## [I/O System](#008) #
   
 ****
 <h1 id="001">基礎概念</h1> 
@@ -902,6 +903,14 @@ clear2(int array[], int size)
 ```
 
 <h1 id="007">Memory</h1> 
+
+* ## [Memory interleaving](#0071) #
+* ## [記憶體類型](#0072) #
+* ## [hierarchy](#0073) #
+* ## [cache map](#0074) #
+* ## [replacement policy](#0075) #
+* ## [Write policy](#0076) #
+* ## [Virtual Memory](#0077) #
 
 
 <h2 id="0071">Memory interleaving</h2>
