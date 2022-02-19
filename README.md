@@ -974,7 +974,7 @@ clear2(int array[], int size)
 
 * LRU(least recently used): 紀錄每個block 的存取時間，最久沒被使用的會先被替換掉
 * FIFO(First in First out): 先進先出
-* randmo: 顧名思義
+* random: 顧名思義
 
 <h2 id="0076">Write policy</h2>
 
