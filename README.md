@@ -70,7 +70,7 @@
 
 * [見wiki](https://zh.wikipedia.org/wiki/%E5%86%AF%C2%B7%E8%AF%BA%E4%BC%8A%E6%9B%BC%E7%BB%93%E6%9E%84)
 * [history](https://pansci.asia/archives/194219)
-* von Numann execution cycle(馮紐曼週期): [見4.9](#0049)
+* von Numann execution cycle(馮紐曼週期): [見](https://medium.com/@a131401203/%E4%B8%AD%E6%96%87%E7%B3%BB%E4%B9%8Bmachine-cycle-2a7f1446993c)
 
 <h1 id="002">數據表示法</h1> 
 
@@ -877,7 +877,7 @@ function_a:
     * loader(loading a program):
       * read header 來決定 size
       * create virtual address space
-      * copy text and initialized data intp memory(如果是virtual memory 就要先把page table create 好，然後利用page falt來把東西搬進記憶體)
+      * copy text and initialized data in memory(如果是virtual memory 就要先把page table create 好，然後利用page falt來把東西搬進記憶體)
       * set up argument on stack
       * 初始化register
       * jump 到開頭，開始執行
