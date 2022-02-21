@@ -949,19 +949,19 @@ clear2(int array[], int size)
 <h2 id="0074">cache map</h2>
 
 * Direct-Mapped Cache:
-  * 沒有replacement policy
-  * 使用modulo 的方式將cache map 到memory 上面
+  * 沒有replacement policy，因為假如要找的memory不在cache，那麼這個內容只會被map到固定的cache位置
+  * 使用modulo(餘數) 的方式將cache map 到memory 上面
   * 例如有一cache 64 個block，每個block 大小為16 bytes，因為大小為16bytes 所以offset 用四個bit表達
   * index 代表第幾個block，有64個，所以用6個bit 表達。
-  * 缺點是不同tag但是重複的block 如果需要一直使用到，會大幅增加penalty。譬如index=1跟index=65重複交叉使用。
-  * tag 代表第幾個循環，剩下的位元皆是tag。
+  * 缺點是不同tag但是重複的block 如果需要一直使用到，會大幅增加penalty。譬如index=1跟index=65重複交叉使用(因為兩個memory address都只能map到cache的第一個位置)。
+  * tag 代表第幾個循環，除了index和offset以外剩下的皆是tag。
     ![map](/imgs/map.png)
   * map 示意圖:
   * ![map2](/imgs/map2.png)
 * Fully Associative Cache
+  * Associative memory 代表著每個block 均有一比較器，與每個block 的 tag 同時做比較，才能達到O(1)的速度。
   * 使用 Fully Associative Cache 的話，cache 裡面的block 就不用按照順序擺放，解決了Direct-Mapped Cache的重複交叉使用問題。
   * 必須要有Associative memory 這種昂貴的hardware 才可以辦到，
-  * Associative memory 代表著每個block 均有一比較器，與每個block 的 tag 同時做比較，才能達到O(1)的速度。
   * 上述Direct-Mapped Cache的例子會變成用四個bit表達offset，其他都是tag。
 * Set-associative cache
   * 又稱N路集合關聯式快取，把N個block 變成一個集合
@@ -972,9 +972,10 @@ clear2(int array[], int size)
 
 <h2 id="0075">replacement policy</h2>
 
-* LRU(least recently used): 紀錄每個block 的存取時間，最久沒被使用的會先被替換掉
-* FIFO(First in First out): 先進先出
-* random: 顧名思義
+* 當Cache有block要被犧牲掉時，要犧牲掉誰:
+  * LRU(least recently used): 紀錄每個block 的存取時間，最久沒被使用的會先被替換掉
+  * FIFO(First in First out): 先進先出
+  * random: 顧名思義
 
 <h2 id="0076">Write policy</h2>
 
