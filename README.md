@@ -872,7 +872,7 @@ function_a:
     * linker(linkin object module):
       * merge segment
       * resolve labels
-      * 把 location-dependent and enternel refs 補起來
+      * 把 location-dependent and externel refs 補起來
       * 會留下一些需要relocate 的東西 讓loader 去做(如果用virtual memory 的話就不會)
     * loader(loading a program):
       * read header 來決定 size
