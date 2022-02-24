@@ -438,7 +438,8 @@
   
   
 * <h2 id="0044">指令的處理</h2>  
-  * [Machine Cycle](https://medium.com/@a131401203/2a7f1446993c)(又稱von Numann execution cycle 或 instruction cycle) : 擷取->解碼->執行 為一個單位
+
+  * [Machine Cycle](https://medium.com/@a131401203/%E4%B8%AD%E6%96%87%E7%B3%BB%E4%B9%8Bmachine-cycle-2a7f1446993c) (又稱von Numann execution cycle 或 instruction cycle) : 擷取->解碼->執行 為一個單位
   * 加上interrupt 之後的cycle![加上interrupt 之後的cycle](/imgs/20180924000054905.jpg)
   * (Interrupt:pending)[123]  
   
