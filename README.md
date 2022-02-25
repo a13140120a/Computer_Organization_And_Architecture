@@ -1016,7 +1016,7 @@ clear2(int array[], int size)
   * 因為spatial locality，通常一個entry就可以有很大的效能改善(想像一個page 4KB, 每次access都要查詢page table)
 
 * cache加上TLB加上page table的memory access完整流程圖:
-
+  * ![cache_TLB_pagetable](https://github.com/a13140120a/Computer_Organization_And_Architecture/blob/main/imgs/cache_TLB_pagetable.png)
 
 
 <h1 id="008">I/O System</h1> 
