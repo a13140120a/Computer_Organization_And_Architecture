@@ -992,7 +992,6 @@ clear2(int array[], int size)
 
 * dirty bit: 紀錄page 是否被修改過(write back 的機制，因為penalty過大，故不可能是write throught)
 * valid bit: 為0代表此page不在實體memory 當中，反之亦然
-* 通常會有一個
 * 為了multi-process 而誕生，每個process 都要share 一個main memory
 * page 是虛擬的，frame 是實體的
 * 每個process 會有自己的page table 紀錄virtual address 對應到的physical address
